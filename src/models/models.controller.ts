@@ -8,10 +8,9 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ModelsService } from './models.service';
-// import { CreateModelDto } from './dto/create-model.dto';
-// import { UpdateModelDto } from './dto/update-model.dto';
-import { Prisma } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateModelDto } from './dto/create-model.dto';
+import { UpdateModelDto } from './dto/update-model.dto';
 
 @ApiTags('Models')
 @Controller('models')
@@ -19,8 +18,8 @@ export class ModelsController {
   constructor(private readonly modelsService: ModelsService) {}
 
   @Post()
-  create(@Body() createModelDto: Prisma.ModelCreateInput) {
-    return this.modelsService.create(createModelDto);
+  async create(@Body() createModelDto: CreateModelDto) {
+    return await this.modelsService.create(createModelDto);
   }
 
   @Get()
@@ -34,10 +33,7 @@ export class ModelsController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateModelDto: Prisma.ModelUpdateInput,
-  ) {
+  update(@Param('id') id: string, @Body() updateModelDto: UpdateModelDto) {
     return this.modelsService.update(+id, updateModelDto);
   }
 

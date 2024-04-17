@@ -1,8 +1,17 @@
-import { z } from 'zod';
+import { ApiProperty } from '@nestjs/swagger';
 
-export const LoginDto = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
-});
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-export type LoginDtoType = z.infer<typeof LoginDto>;
+export class LoginDtoType {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(5)
+  @ApiProperty()
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  @MinLength(5)
+  password: string;
+}

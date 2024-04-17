@@ -1,6 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateBrandDto } from 'src/brands/dto/create-brand.dto';
-import { CreateModelDto } from 'src/models/dto/create-model.dto';
 
 export class CreateProductDto {
   @ApiProperty()
@@ -13,8 +11,8 @@ export class CreateProductDto {
   imageUr: string;
 
   @ApiProperty()
-  brand: CreateBrandDto[];
+  modelId: number;
 
   @ApiProperty()
-  model: CreateModelDto[];
+  brandId: number;
 }

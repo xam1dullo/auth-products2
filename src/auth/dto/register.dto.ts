@@ -1,9 +1,22 @@
-import { z } from 'zod';
+import { ApiProperty } from '@nestjs/swagger';
 
-export const RegisterDto = z.object({
-  username: z.string().min(1),
-  password: z.string().min(6), // You should enforce stronger password policies in production
-  phone: z.string().min(10), // Assuming a basic length check for phone numbers
-});
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-export type RegisterDtoType = z.infer<typeof RegisterDto>;
+export class RegisterDtoType {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(5)
+  @ApiProperty()
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  @MinLength(5)
+  password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  phone: string;
+}

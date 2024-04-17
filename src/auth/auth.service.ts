@@ -16,6 +16,7 @@ export class AuthService {
         phone: userData.phone,
       },
     });
+
     return user;
   }
 
@@ -23,6 +24,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { username },
     });
+
     if (user && (await bcrypt.compare(pass, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
@@ -33,6 +35,7 @@ export class AuthService {
 
   async login(userData) {
     const user = await this.validateUser(userData.username, userData.password);
+    console.log(user);
     if (!user) {
       throw new Error('User not found or password does not match');
     }
