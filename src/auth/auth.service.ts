@@ -1,11 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDtoType } from './dto/register.dto';
-import * as bcrypt from 'bcrypt';
+import { AuthEntity } from './entity/auth.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
 
   async register(userData: RegisterDtoType) {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -20,27 +29,25 @@ export class AuthService {
     return user;
   }
 
-  async validateUser(username: string, pass: string): Promise<any> {
+  async login(userData): Promise<AuthEntity> {
+    const { username, password } = userData;
+
     const user = await this.prisma.user.findUnique({
       where: { username },
     });
 
-    if (user && (await bcrypt.compare(pass, user.password))) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
-  }
-
-  async login(userData) {
-    const user = await this.validateUser(userData.username, userData.password);
-    console.log(user);
     if (!user) {
-      throw new Error('User not found or password does not match');
+      throw new NotFoundException(`No user found for username: ${username}`);
     }
-    // For simplicity, assuming the user is returned directly
-    // Typically, you should return a JWT token or a session token here
-    return user;
+
+    const isPasswordValid = bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid password');
+    }
+
+    return {
+      accessToken: this.jwtService.sign({ userId: user.id }),
+    };
   }
 }

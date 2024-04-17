@@ -21,7 +21,6 @@ import { UserService } from './users/users.service';
     BrandsModule,
     ProductsModule,
     ModelsModule,
-    UsersModule,
   ],
   controllers: [AppController],
   providers: [
@@ -32,6 +31,6 @@ import { UserService } from './users/users.service';
     BrandsService,
     UserService,
   ],
-  exports: [PrismaService],
+  exports: [PrismaService, UserService],
 })
 export class AppModule {}

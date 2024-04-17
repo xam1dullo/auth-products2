@@ -8,13 +8,13 @@ import {
   Delete,
   ParseIntPipe,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
-import { BrandsService } from './brands.service';
-// import { CreateBrandDto } from './dto/create-brand.dto';
-// import { UpdateBrandDto } from './dto/update-brand.dto';
+import { ApiTags } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { CreateBrandDto } from './dto/create-brand.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { BrandsService } from './brands.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('Brands')
 @Controller('brands')
@@ -22,16 +22,19 @@ export class BrandsController {
   constructor(private readonly brandsService: BrandsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(@Body() createBrandDto: CreateBrandDto) {
     return this.brandsService.create(createBrandDto);
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll() {
     return this.brandsService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const brand = await this.brandsService.findOne(id);
     if (!brand) {
@@ -42,6 +45,7 @@ export class BrandsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBrandDto: Prisma.BrandUpdateInput,
@@ -59,6 +63,7 @@ export class BrandsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async remove(@Param('id', ParseIntPipe) id: number) {
     const deleteBrand = await this.brandsService.remove(id);
     if (!deleteBrand) {
