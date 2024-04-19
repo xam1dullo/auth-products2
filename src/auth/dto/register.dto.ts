@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
 
 export class RegisterDtoType {
   @IsString()
@@ -18,5 +18,7 @@ export class RegisterDtoType {
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
+  @MinLength(12)
+  @Matches(/^\+[1-9]\d{1,14}$/)
   phone: string;
 }

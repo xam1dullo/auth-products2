@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -18,16 +19,29 @@ export class AuthService {
   ) {}
 
   async register(userData: RegisterDtoType) {
+    const user = await this.prisma.user.findUnique({
+      where: { username: userData.username },
+    });
+
+    // If user exists, throw an error
+    if (user) {
+      throw new ConflictException('User already exist');
+    }
+
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const user = await this.prisma.user.create({
+    const result = await this.prisma.user.create({
       data: {
         username: userData.username,
         password: hashedPassword,
         phone: userData.phone,
       },
     });
-
-    return user;
+    delete result.password;
+    delete result.id;
+    return {
+      message: 'Successful created',
+      ...result,
+    };
   }
 
   async login(userData: LoginDtoType): Promise<AuthEntity> {
