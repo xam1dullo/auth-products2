@@ -12,15 +12,32 @@ import { ModelsService } from './models/models.service';
 import { ProductsService } from './products/products.service';
 import { BrandsService } from './brands/brands.service';
 import { UserService } from './users/users.service';
+import { ImagesModule } from './images/images.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import path from 'path';
+
+export const multerConfig = {
+  storage: diskStorage({
+    destination: './uploads', // make sure this folder exists
+    filename: (req, file, cb) => {
+      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const fileExtension = path.extname(file.originalname);
+      cb(null, `${uniqueSuffix}${fileExtension}`); // or any other naming convention
+    },
+  }),
+};
 
 @Module({
   imports: [
+    MulterModule.register(multerConfig),
     AuthModule,
     UsersModule,
     PrismaModule,
     BrandsModule,
     ProductsModule,
     ModelsModule,
+    ImagesModule,
   ],
   controllers: [AppController],
   providers: [

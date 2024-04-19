@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDtoType } from './dto/register.dto';
 import { AuthEntity } from './entity/auth.entity';
 import { JwtService } from '@nestjs/jwt';
+import { LoginDtoType } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -29,8 +30,12 @@ export class AuthService {
     return user;
   }
 
-  async login(userData): Promise<AuthEntity> {
+  async login(userData: LoginDtoType): Promise<AuthEntity> {
     const { username, password } = userData;
+    console.log({
+      username,
+      password,
+    });
 
     const user = await this.prisma.user.findUnique({
       where: { username },
@@ -40,7 +45,8 @@ export class AuthService {
       throw new NotFoundException(`No user found for username: ${username}`);
     }
 
-    const isPasswordValid = bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log({ user, isPasswordValid });
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');

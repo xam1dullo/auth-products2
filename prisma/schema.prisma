@@ -37,3 +37,9 @@ model Brand {
   name     String    @unique
   products Product[]
 }
+
+model Image {
+  id    Int    @id @default(autoincrement())
+  title String
+  path  String
+}
