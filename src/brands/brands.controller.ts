@@ -10,7 +10,7 @@ import {
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { BrandsService } from './brands.service';
@@ -22,18 +22,21 @@ export class BrandsController {
   constructor(private readonly brandsService: BrandsService) {}
 
   @Post()
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   create(@Body() createBrandDto: CreateBrandDto) {
     return this.brandsService.create(createBrandDto);
   }
 
   @Get()
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   findAll() {
     return this.brandsService.findAll();
   }
 
   @Get(':id')
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const brand = await this.brandsService.findOne(id);
@@ -45,6 +48,7 @@ export class BrandsController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -63,6 +67,7 @@ export class BrandsController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
   async remove(@Param('id', ParseIntPipe) id: number) {
     const deleteBrand = await this.brandsService.remove(id);

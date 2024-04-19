@@ -9,7 +9,10 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
-    .addBearerAuth()
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token', // This name is used internally to reference this security scheme
+    )
     .setTitle('Auth_Products')
     .setDescription('Auth Products')
     .setVersion('0.1')
