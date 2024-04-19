@@ -11,10 +11,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Prisma } from '@prisma/client';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { BrandsService } from './brands.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UpdateBrandDto } from './dto/update-brand.dto';
 
 @ApiTags('Brands')
 @Controller('brands')
@@ -52,7 +52,7 @@ export class BrandsController {
   @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateBrandDto: Prisma.BrandUpdateInput,
+    @Body() updateBrandDto: UpdateBrandDto,
   ) {
     try {
       const updateBrand = await this.brandsService.update(id, updateBrandDto);
