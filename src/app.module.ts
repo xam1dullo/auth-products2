@@ -14,20 +14,27 @@ import { BrandsService } from './brands/brands.service';
 import { UserService } from './users/users.service';
 import { ImagesModule } from './images/images.module';
 import { MulterModule } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import path from 'path';
+import { memoryStorage } from 'multer';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 export const multerConfig = {
-  storage: diskStorage({
-    destination: './uploads', // make sure this folder exists
-    filename: (req, file, cb) => {
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-      const fileExtension = path.extname(file.originalname);
-      cb(null, `${uniqueSuffix}${fileExtension}`); // or any other naming convention
-    },
-  }),
+  storage: memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Limit size to 5MB
+  },
+  fileFilter: (req: any, file: any, cb: any) => {
+    if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+      // Allow storage of file
+      cb(null, true);
+    } else {
+      // Reject file
+      cb(new Error('Invalid file type, only images are allowed!'), false);
+    }
+  },
 };
 
+console.log(join(__dirname, '..', '..', 'uploads'));
 @Module({
   imports: [
     MulterModule.register(multerConfig),
@@ -38,6 +45,10 @@ export const multerConfig = {
     ProductsModule,
     ModelsModule,
     ImagesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'uploads'),
+      serveRoot: '/static',
+    }),
   ],
   controllers: [AppController],
   providers: [
