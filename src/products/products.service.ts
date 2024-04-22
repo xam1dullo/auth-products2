@@ -16,14 +16,17 @@ export class ProductsService {
       });
       return res;
     } catch (error) {
-      console.log(error.name);
-
+      console.log(error);
       return error;
     }
   }
 
   async findAll() {
-    return await this.prisma.product.findMany();
+    try {
+      return await this.prisma.product.findMany();
+    } catch (error) {
+      return error;
+    }
   }
 
   async findOne(id: number) {

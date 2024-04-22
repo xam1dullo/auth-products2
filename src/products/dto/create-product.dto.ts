@@ -8,7 +8,7 @@ export class CreateProductDto {
   price: number;
 
   @ApiProperty()
-  imageUr: string;
+  imageUrl: string;
 
   @ApiProperty()
   modelId: number;
