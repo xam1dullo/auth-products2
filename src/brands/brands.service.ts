@@ -62,11 +62,15 @@ export class BrandsService {
   }
 
   async remove(id: number) {
-    const res = await this.prisma.brand.delete({
-      where: {
-        id,
-      },
-    });
-    return res;
+    try {
+      const res = await this.prisma.brand.delete({
+        where: {
+          id,
+        },
+      });
+      return res;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }

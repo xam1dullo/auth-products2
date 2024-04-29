@@ -11,13 +11,35 @@ export class ProductsService {
 
   async create(createProductDto: CreateProductDto) {
     try {
+      const { brandId, modelId } = createProductDto;
+
+      console.log(brandId, modelId);
+
+      const model = await this.prisma.model.findFirst({
+        where: {
+          id: modelId,
+        },
+      });
+      if (!model) {
+        throw new Error('Model id not found');
+      }
+
+      const brand = await this.prisma.brand.findFirst({
+        where: {
+          id: brandId,
+        },
+      });
+
+      if (!brand) {
+        throw new Error('brandId not found');
+      }
+
       const res = await this.prisma.product.create({
         data: createProductDto,
       });
       return res;
     } catch (error) {
-      console.log(error);
-      return error;
+      return error.message;
     }
   }
 

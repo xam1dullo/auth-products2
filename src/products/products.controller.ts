@@ -23,8 +23,14 @@ export class ProductsController {
   @Post()
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  async create(@Body() createProductDto: CreateProductDto) {
+    const result = await this.productsService.create(createProductDto);
+
+    if (!result) {
+      return result;
+    }
+    console.log(result);
+    return result;
   }
 
   @Get()
