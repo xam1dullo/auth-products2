@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 // import { CreateProductDto } from './dto/create-product.dto';
 // import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -15,23 +15,18 @@ export class ProductsService {
 
       console.log(brandId, modelId);
 
-      const model = await this.prisma.model.findFirst({
-        where: {
-          id: modelId,
-        },
-      });
+      // Check for model and brand in one go (if applicable)
+      const [model, brand] = await this.prisma.$transaction([
+        this.prisma.model.findUnique({ where: { id: modelId } }),
+        this.prisma.brand.findUnique({ where: { id: brandId } }),
+      ]);
+
       if (!model) {
-        throw new Error('Model id not found');
+        throw new HttpException('Model id not found', HttpStatus.NOT_FOUND);
       }
 
-      const brand = await this.prisma.brand.findFirst({
-        where: {
-          id: brandId,
-        },
-      });
-
       if (!brand) {
-        throw new Error('brandId not found');
+        throw new HttpException('Brand id not found', HttpStatus.NOT_FOUND);
       }
 
       const res = await this.prisma.product.create({
@@ -71,11 +66,31 @@ export class ProductsService {
   }
 
   async remove(id: number) {
-    const res = await this.prisma.product.delete({
-      where: {
-        id,
-      },
-    });
-    return res;
+    try {
+      console.log(`Attempting to delete product with id: ${id}`);
+
+      const res = await this.prisma.product.delete({
+        where: { id },
+      });
+
+      console.log(`Product deleted successfully: ${id}`);
+      return res;
+    } catch (error) {
+      // Handle the case where the product does not exist.
+      if (error.code === 'P2025') {
+        console.error(`No product found with id: ${id}`);
+        throw new HttpException(
+          `No product found with id: ${id}`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      // Log unexpected errors and rethrow them
+      console.error('Failed to delete product:', error);
+      throw new HttpException(
+        'Failed to delete product',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 // import { CreateBrandDto } from './dto/create-brand.dto';
 // import { UpdateBrandDto } from './dto/update-brand.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -63,14 +67,24 @@ export class BrandsService {
 
   async remove(id: number) {
     try {
+      console.log(`Attempting to delete brand with id: ${id}`);
+
       const res = await this.prisma.brand.delete({
-        where: {
-          id,
-        },
+        where: { id },
       });
+
+      console.log(`Brand deleted successfully: ${id}`);
       return res;
     } catch (error) {
-      throw new Error(error);
+      // Handle the case where the brand does not exist.
+      if (error.code === 'P2025') {
+        console.error(`No brand found with id: ${id}`);
+        throw new NotFoundException(`No brand found with id: ${id}`);
+      }
+
+      // Log unexpected errors and rethrow a more specific error
+      console.error('Failed to delete brand:', error);
+      throw new InternalServerErrorException('Failed to delete brand');
     }
   }
 }
